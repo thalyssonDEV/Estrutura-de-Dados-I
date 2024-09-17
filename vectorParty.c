@@ -1,24 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 
 void showMenu(void) {
-    printf("\n\033[32m======== VECTOR PARTY ========\033[0m\n");
-    printf("\033[31m[ 1 ] \033[34mADICIONAR VALORES\033[0m\n");
-    printf("\033[31m[ 2 ] \033[34mREMOVER VALORES\033[0m\n");
-    printf("\033[31m[ 3xx ] \033[34mREMOVER VALORES POR POSIÇÃO\033[0m\n");
-    printf("\033[31m[ 4 ] \033[34mSUBSTITUIR VALORES\033[0m\n");
-    printf("\033[31m[ 5xx ] \033[34mSUBSTITUIR VALORES POR POSIÇÃO\033[0m\n");
-    printf("\033[31m[ 6 ] \033[34mTAMANHO DO VETOR\033[0m\n");
-    printf("\033[31m[ 7 ] \033[34mSOMATÓTIO DOS VALORES\033[0m\n");
-    printf("\033[31m[ 8 ] \033[34mMÉDIA DOS VALORES\033[0m\n");
-    printf("\033[31m[ 9 ] \033[34mORDENAR VETOR EM ORDEM CRESCENTE\033[0m\n");
-    printf("\033[31m[ 10 ] \033[34mORDENAR VETOR EM ORDEM DECRESCENTE\033[0m\n");
-    printf("\033[31m[ 11xx ] \033[34mEMBARALHAR VETOR\033[0m\n");
-    printf("\033[31m[ 12 ] \033[34mNÚMERO DE OCORRÊNCIAS DE UM VALOR\033[0m\n");
-    printf("\033[33m[ 98 ] \033[33mSALVAR VALORES EM ARQUIVO\033[0m\n");
-    printf("\033[33m[ 99 ] \033[33mDESFAZER A MODIFICAÇÃO ANTERIOR\033[0m\n");
-    printf("\033[31m[ 0 ] \033[34mSAIR\033[0m\n");
+    printf("\n\033[32m======== VECTOR PARTY ========\n");
+    printf("\033[31m[ 1 ] \033[34mADICIONAR VALORES\n");
+    printf("\033[31m[ 2 ] \033[34mREMOVER VALORES\n");
+    printf("\033[31m[ 3 ] \033[34mREMOVER VALORES POR POSIÇÃO\n");
+    printf("\033[31m[ 4 ] \033[34mSUBSTITUIR VALORES\n");
+    printf("\033[31m[ 5 ] \033[34mSUBSTITUIR VALORES POR POSIÇÃO\n");
+    printf("\033[31m[ 6 ] \033[34mTAMANHO DO VETOR\n");
+    printf("\033[31m[ 7 ] \033[34mSOMATÓTIO DOS VALORES\n");
+    printf("\033[31m[ 8 ] \033[34mMÉDIA DOS VALORES\n");
+    printf("\033[31m[ 9 ] \033[34mORDENAR VETOR EM ORDEM CRESCENTE\n");
+    printf("\033[31m[ 10 ] \033[34mORDENAR VETOR EM ORDEM DECRESCENTE\n");
+    printf("\033[31m[ 11 ] \033[34mEMBARALHAR VETOR\n");
+    printf("\033[31m[ 12 ] \033[34mNÚMERO DE OCORRÊNCIAS DE UM VALOR\n");
+    printf("\033[31m[ 13xxx ] \033[34m\n");
+    printf("\033[33m[ 98 ] \033[33mSALVAR VALORES EM ARQUIVO\n");
+    printf("\033[33m[ 99 ] \033[33mDESFAZER A MODIFICAÇÃO ANTERIOR\n");
+    printf("\033[36m[ 0 ] \033[36mSAIR\033[0m\n");
+}
+
+
+void saveFile(int *vector, int qtd, const char *nameFile) {
+    FILE *file = fopen(nameFile, "w");
+
+    if (file == NULL) {
+        printf("\nERRO AO ABRIR O ARQUIVO\n");
+        exit(1);
+    }
+
+    for (int i=0; i < qtd; i++) {
+        fprintf(file, "%d ", vector[i]);
+    }
+    fclose(file);
 }
 
 
@@ -29,7 +46,7 @@ int* createBackup(int *vector, int qtd) {
         exit(1);
     }
 
-    for (int i = 0; i < qtd; i++) {
+    for (int i=0; i < qtd; i++) {
         backup[i] = vector[i];
     }
     return backup;
@@ -37,16 +54,18 @@ int* createBackup(int *vector, int qtd) {
 
 
 void restoreFromBackup(int **vector, int *qtd, int *backup, int backupSize) {
-    free(*vector);
+    if (*vector != NULL) {
+        free(*vector);
+    }
 
     *vector = (int *)malloc(backupSize * sizeof(int));
-    
+
     if (*vector == NULL) {
         printf("ERRO NA ALOCAÇÃO DE MEMÓRIA PARA RESTAURAÇÃO\n");
         exit(1);
     }
 
-    for (int i = 0; i < backupSize; i++) {
+    for (int i=0; i < backupSize; i++) {
         (*vector)[i] = backup[i];
     }
     *qtd = backupSize;
@@ -54,7 +73,7 @@ void restoreFromBackup(int **vector, int *qtd, int *backup, int backupSize) {
 
 
 void performBackup(int **vector, int **backupVector, int *backupSize, int qtd) {
-    if (backupVector != NULL) {
+    if (*backupVector != NULL) {
         free(*backupVector);
     }
     *backupVector = createBackup(*vector, qtd);
@@ -79,11 +98,24 @@ void clearScreen(void) {
 }
 
 
-int countOccurrences(int *vector, int qtd, int value) {
-    int count;
+void shuffleVector(int *vector, int qtd) {
+    int temp = 0;
+    srand(time(NULL));
 
-    count = 0;
-    for (int i = 0; i < qtd; i++) {
+    for (int i = qtd - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+
+        temp = vector[i];
+        vector[i] = vector[j];
+        vector[j] = temp;
+    }
+}
+
+
+int countOccurrences(int *vector, int qtd, int value) {
+    int count = 0;
+
+    for (int i=0; i < qtd; i++) {
         if (vector[i] == value) {
             count++;
         }
@@ -93,23 +125,19 @@ int countOccurrences(int *vector, int qtd, int value) {
 
 
 double averageVector(int *vector, int qtd) {
-    long long sum;
-    double average;
+    long long sum = 0;
 
-    sum = 0;
-    for (int i = 0; i < qtd; i++) {
+    for (int i=0; i < qtd; i++) {
         sum += vector[i];
     }
-
     return (double)sum / qtd;
 }
 
 
 int sumVector(int *vector, int qtd) {
-    long long sum;
+    long long sum = 0;
 
-    sum = 0;
-    for (int i = 0; i < qtd; i++) {
+    for (int i=0; i < qtd; i++) {
         sum += vector[i];
     }
     return sum;
@@ -117,10 +145,10 @@ int sumVector(int *vector, int qtd) {
 
 
 void sortVector(int *vector, int qtd, int order) {
-    int temp;
+    int temp = 0;
 
-    for (int i = 0; i < qtd - 1; i++) {
-        for (int j = 0; j < qtd - i - 1; j++) {
+    for (int i=0; i < qtd - 1; i++) {
+        for (int j=0; j < qtd - i - 1; j++) {
             if ((order == 1 && vector[j] > vector[j + 1]) ||
                 (order == 2 && vector[j] < vector[j + 1])) {
                 temp = vector[j];
@@ -133,11 +161,20 @@ void sortVector(int *vector, int qtd, int order) {
 
 
 void replaceNumbers(int *vector, int qtd, int numberToReplace, int newNumber){
-     for (int index = 0; index < qtd; index++) {
-         if (vector[index] == numberToReplace) {
-             vector[index] = newNumber;
-         } 
+     for (int i=0; i < qtd; i++) {
+         if (vector[i] == numberToReplace) {
+             vector[i] = newNumber;
+        }
      }
+}
+
+
+void replaceNumbersByPosition(int *vector, int qtd, int positionNumberToReplace, int newNumber) {
+    for (int i=0; i < qtd; i++) {
+        if (i + 1 == positionNumberToReplace) {
+            vector[i] = newNumber;
+        }
+    }
 }
 
 
@@ -153,15 +190,26 @@ int *addNumbers(int *vector, int *qtd, int qtdNumerosToAdd) {
     return vector;
 }
 
+void removeNumbersByPosition(int *vector, int *qtd, int positionToRemove) {
+    if (positionToRemove < 1 || positionToRemove > *qtd) {
+        printf("POSIÇÃO FORA DOS LIMITES\n");
+        exit(1);
+    }
 
-void removeNumber(int *vector, int *qtd, int valueToRemove) {
-    int i, j;
+    for (int i = positionToRemove - 1; i < positionToRemove; i++) {
+        vector[i] = vector[i + 1];
+    }
+
+    (*qtd)--;
+}
+
+void removeNumbers(int *vector, int *qtd, int valueToRemove) {
     int found = 0;
 
-    for (i = 0; i < *qtd; ) {
+    for (int i=0; i < *qtd;) {
         if (vector[i] == valueToRemove) {
             found = 1;
-            for (j = i; j < *qtd - 1; j++) {
+            for (int j = i; j < *qtd - 1; j++) {
                 vector[j] = vector[j + 1];
             }
 
@@ -180,9 +228,14 @@ void removeNumber(int *vector, int *qtd, int valueToRemove) {
 
 
 void showVector(int *vector, int qtd) {
+    if (qtd == 0) {
+        printf("\n\033[38;2;255;0;0mVETOR ATUAL -->\033[0m []\n");
+        return;
+    }
+
     printf("\n\033[38;2;255;0;0mVETOR ATUAL -->\033[0m ");
     printf("[");
-    for (int i = 0; i < qtd; i++) {
+    for (int i=0; i < qtd; i++) {
         if (i == qtd - 1) {
             printf("%d]", vector[i]);
         } else {
@@ -205,7 +258,7 @@ int *addVector(int qtd) {
 
 
 int main(void) {
-    int *vector, qtd, choice, *backupVector = NULL, backupSize = 0;
+    int *vector = NULL, qtd, choice, *backupVector = NULL, backupSize = 0;
 
     printf("\n\033[32m===== BEM VINDO(A) À APLICAÇÃO VECTOR PARTY =====\033[0m\n");
 
@@ -215,7 +268,7 @@ int main(void) {
     vector = addVector(qtd);
 
     printf("\n--> Digite os %d Valores Separados Por Espaço ou Linha: ", qtd);
-    for (int i = 0; i < qtd; i++) {
+    for (int i=0; i < qtd; i++) {
         scanf("%d", &vector[i]);
     }
 
@@ -232,7 +285,7 @@ int main(void) {
             case 1: {
                 int qtdNumerosToAdd;
                 performBackup(&vector, &backupVector, &backupSize, qtd);
-                
+
                 printf("\nDigite Quantos Valores Deseja Adicionar: ");
                 scanf("%d", &qtdNumerosToAdd);
 
@@ -254,16 +307,29 @@ int main(void) {
                 scanf("%d", &qtdNumerosToRemove);
 
                 printf("\nDigite os Valores a Remover Separados Por Espaço ou Linha: ");
-                for (int i = 0; i < qtdNumerosToRemove; i++) {
+                for (int i=0; i < qtdNumerosToRemove; i++) {
                     scanf("%d", &valueToRemove);
-                    removeNumber(vector, &qtd, valueToRemove);
+                    removeNumbers(vector, &qtd, valueToRemove);
                 }
 
                 break;
             }
 
             case 3: {
+                int qtdNumbersToReplace, positionToRemove, count = 1;
+                performBackup(&vector, &backupVector, &backupSize, qtd);
 
+                printf("\nDigite Quantos Valores Deseja Substituir: ");
+                scanf("%d", &qtdNumbersToReplace);
+
+                for (int i=0; i < qtdNumbersToReplace; i++) {
+                    printf("\nDigite a Posição dp %dº Valor Que Deseja Remover: ", count);
+                    scanf("%d", &positionToRemove);
+
+                    removeNumbersByPosition(vector, &qtd, positionToRemove);
+                }
+
+                break;
             }
 
             case 4: {
@@ -273,7 +339,7 @@ int main(void) {
                 printf("\nDigite Quantos Valores Deseja Substituir: ");
                 scanf("%d", &qtdNumbersToReplace);
 
-                for (int i = 0; i < qtdNumbersToReplace; i++) {
+                for (int i=0; i < qtdNumbersToReplace; i++) {
                     printf("\nDigite o %dº Valor Que Deseja Substituir: ", count);
                     scanf("%d", &numberToReplace);
 
@@ -288,7 +354,24 @@ int main(void) {
             }
 
             case 5: {
+                int qtdNumbersToReplace, positionNumberToReplace, newNumber, count = 1;
+                performBackup(&vector, &backupVector, &backupSize, qtd);
 
+                printf("\nDigite Quantos Valores Deseja Substituir: ");
+                scanf("%d", &qtdNumbersToReplace);
+
+                for (int i=0; i < qtdNumbersToReplace; i++) {
+                    printf("\nDigite a Posição do %dº Valor Que Deseja Substituir: ", count);
+                    scanf("%d", &positionNumberToReplace);
+
+                    printf("\nDigite o Novo Valor: ");
+                    scanf("%d", &newNumber);
+
+                    replaceNumbersByPosition(vector, qtd, positionNumberToReplace, newNumber);
+                    count++;
+                }
+
+                break;
             }
 
             case 6: {
@@ -321,7 +404,7 @@ int main(void) {
             }
 
             case 9: {
-                int order = 1;
+                const int order = 1;
                 performBackup(&vector, &backupVector, &backupSize, qtd);
                 sortVector(vector, qtd, order);
 
@@ -329,7 +412,7 @@ int main(void) {
             }
 
             case 10: {
-                int order = 2;
+                const int order = 2;
                 performBackup(&vector, &backupVector, &backupSize, qtd);
                 sortVector(vector, qtd, order);
 
@@ -337,7 +420,9 @@ int main(void) {
             }
 
             case 11: {
+                shuffleVector(vector, qtd);
 
+                break;
             }
 
             case 12: {
@@ -354,17 +439,34 @@ int main(void) {
                 break;
             }
 
-            case 0:
+            case 0: {
                 printf("Saindo...\n");
 
                 break;
+            }
+
+            case 98:{
+                int const MAXSIZE = 50;
+                char *nameFile = (char *)malloc(MAXSIZE * sizeof(char));
+
+                printf("\nDigite o Nome do Arquivo: ");
+                scanf("%s", nameFile);
+
+                saveFile(vector, qtd, nameFile);
+                printf("\n\033[92mVETOR SALVO COM SUCESSO NO ARQUIVO '%s.txt'!\033[0m\n", nameFile);
+                pauseExecution();
+
+                free(nameFile);
+                break;
+            }
+
 
             case 99: {
                 if (backupVector != NULL) {
                     restoreFromBackup(&vector, &qtd, backupVector, backupSize);
                     printf("\n\033[91;42mBACKUP RESTAURADO\033[0m\n");
                     pauseExecution();
-                    
+
                 } else {
                     printf("\n\033[91;41mBACKUP INDISPONÍVEL\033[0m\n");
                     pauseExecution();
@@ -374,14 +476,15 @@ int main(void) {
             }
 
             default:
-
                 break;
         }
     }
+    if (vector != NULL) {}
     free(vector);
 
     if (backupVector != NULL) {
         free(backupVector);
     }
+
     return 0;
 }
