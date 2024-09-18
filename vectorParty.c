@@ -17,7 +17,8 @@ void showMenu(void) {
     printf("\033[31m[ 10 ] \033[34mORDENAR VETOR EM ORDEM DECRESCENTE\n");
     printf("\033[31m[ 11 ] \033[34mEMBARALHAR VETOR\n");
     printf("\033[31m[ 12 ] \033[34mNÚMERO DE OCORRÊNCIAS DE UM VALOR\n");
-    printf("\033[31m[ 13xxx ] \033[34m\n");
+    printf("\033[31m[ 13 ] \033[34mMOSTRAR QUANTIDADE DA PARES E IMPARES\n");
+    printf("14\n");
     printf("\033[33m[ 98 ] \033[33mSALVAR VALORES EM ARQUIVO\n");
     printf("\033[33m[ 99 ] \033[33mDESFAZER A MODIFICAÇÃO ANTERIOR\n");
     printf("\033[36m[ 0 ] \033[36mSAIR\033[0m\n");
@@ -97,6 +98,18 @@ void clearScreen(void) {
     #endif
 }
 
+void getEvensAndOdds(int *vector, int qtd, int *evens, int *odds) {
+    *evens = 0;
+    *odds = 0;
+
+    for (int i=0; i < qtd; i++) {
+        if (vector[i] % 2 == 0) {
+            (*evens)++;
+        } else {
+            (*odds)++;
+        }
+    }
+}
 
 void shuffleVector(int *vector, int qtd) {
     int temp = 0;
@@ -434,6 +447,18 @@ int main(void) {
                 occurrences = countOccurrences(vector, qtd, value);
 
                 printf("\n\033[92;47mO VALOR %d APARECE %d VEZES NO VETOR\033[0m\n", value, occurrences);
+                pauseExecution();
+
+                break;
+            }
+
+            case 13: {
+                int *evens, *odds;
+
+                getEvensAndOdds(vector, qtd, &evens, &odds);
+
+                printf("\n\033[93;42mEXISTEM %d NÚMEROS PARES NO VETOR\033[0m\n", evens);
+                printf("\n\033[93;43mEXISTEM %d NÚMEROS ÍMPARES NO VETOR\033[0m\n", odds);
                 pauseExecution();
 
                 break;
