@@ -2,25 +2,36 @@
 #include <stdlib.h>
 #include <time.h>
 
+typedef struct {
+    int option;
+    const char *description;
+} MenuOption;
 
-void showMenu(void) {
+MenuOption menu[] = {
+    {1, "ADICIONAR VALORES"},
+    {2, "REMOVER VALORES"},
+    {3, "REMOVER VALORES POR POSIÇÃO"},
+    {4, "SUBSTITUIR VALORES"},
+    {5, "SUBSTITUIR VALORES POR POSIÇÃO"},
+    {6, "TAMANHO DO VETOR"},
+    {7, "SOMATÓTIO DOS VALORES"},
+    {8, "MÉDIA DOS VALORES"},
+    {9, "ORDENAR VETOR EM ORDEM CRESCENTE"},
+    {10, "ORDENAR VETOR EM ORDEM DECRESCENTE"},
+    {11, "EMBARALHAR VETOR"},
+    {12, "NÚMERO DE OCORRÊNCIAS DE UM VALOR"},
+    {13, "MOSTRAR QUANTIDADE DE PARES E IMPARES"},
+    {14, "MOSTRAR MENOR E MAIOR VALORES E SUAS POSIÇÕES"},
+    {98, "SALVAR VALORES EM ARQUIVO"},
+    {99, "DESFAZER A MODIFICAÇÃO ANTERIOR"}
+};
+
+
+void showMenu(MenuOption menu[], int size) {
     printf("\n\033[32m======== VECTOR PARTY ========\n");
-    printf("\033[31m[ 1 ] \033[34mADICIONAR VALORES\n");
-    printf("\033[31m[ 2 ] \033[34mREMOVER VALORES\n");
-    printf("\033[31m[ 3 ] \033[34mREMOVER VALORES POR POSIÇÃO\n");
-    printf("\033[31m[ 4 ] \033[34mSUBSTITUIR VALORES\n");
-    printf("\033[31m[ 5 ] \033[34mSUBSTITUIR VALORES POR POSIÇÃO\n");
-    printf("\033[31m[ 6 ] \033[34mTAMANHO DO VETOR\n");
-    printf("\033[31m[ 7 ] \033[34mSOMATÓTIO DOS VALORES\n");
-    printf("\033[31m[ 8 ] \033[34mMÉDIA DOS VALORES\n");
-    printf("\033[31m[ 9 ] \033[34mORDENAR VETOR EM ORDEM CRESCENTE\n");
-    printf("\033[31m[ 10 ] \033[34mORDENAR VETOR EM ORDEM DECRESCENTE\n");
-    printf("\033[31m[ 11 ] \033[34mEMBARALHAR VETOR\n");
-    printf("\033[31m[ 12 ] \033[34mNÚMERO DE OCORRÊNCIAS DE UM VALOR\n");
-    printf("\033[31m[ 13 ] \033[34mMOSTRAR QUANTIDADE DA PARES E IMPARES\n");
-    printf("14\n");
-    printf("\033[33m[ 98 ] \033[33mSALVAR VALORES EM ARQUIVO\n");
-    printf("\033[33m[ 99 ] \033[33mDESFAZER A MODIFICAÇÃO ANTERIOR\n");
+    for (int i = 0; i < size; i++) {
+        printf("\033[31m[ %d ] \033[34m%s\n", menu[i].option, menu[i].description);
+    }
     printf("\033[36m[ 0 ] \033[36mSAIR\033[0m\n");
 }
 
@@ -98,6 +109,27 @@ void clearScreen(void) {
     #endif
 }
 
+
+void getBiggestAndSmallest(int *vector, int *biggest, int *smallest, int *positionBiggest, int *positionSmallest, int qtd) {
+    *positionSmallest = 1;
+    *positionBiggest = 1;
+
+    *smallest = vector[0];
+    *biggest = vector[0];
+
+    for (int i=0; i < qtd; i++) {
+        if (vector[i] > *biggest) {
+            *biggest = vector[i];
+            *positionBiggest = i + 1;
+        }
+        if (vector[i] < *smallest) {
+            *smallest = vector[i];
+            *positionSmallest = i + 1;
+        }
+    }
+}
+
+
 void getEvensAndOdds(int *vector, int qtd, int *evens, int *odds) {
     *evens = 0;
     *odds = 0;
@@ -110,6 +142,7 @@ void getEvensAndOdds(int *vector, int qtd, int *evens, int *odds) {
         }
     }
 }
+
 
 void shuffleVector(int *vector, int qtd) {
     int temp = 0;
@@ -225,7 +258,6 @@ void removeNumbers(int *vector, int *qtd, int valueToRemove) {
             for (int j = i; j < *qtd - 1; j++) {
                 vector[j] = vector[j + 1];
             }
-
             (*qtd)--;
 
         } else {
@@ -271,6 +303,7 @@ int *addVector(int qtd) {
 
 
 int main(void) {
+    int size = sizeof(menu) / sizeof(menu[0]);
     int *vector = NULL, qtd, choice, *backupVector = NULL, backupSize = 0;
 
     printf("\n\033[32m===== BEM VINDO(A) À APLICAÇÃO VECTOR PARTY =====\033[0m\n");
@@ -289,7 +322,7 @@ int main(void) {
     while (choice != 0) {
         clearScreen();
         showVector(vector, qtd);
-        showMenu();
+        showMenu(menu,size);
 
         printf("\n\033[35mDigite sua Funcionalidade:\033[0m ");
         scanf("%d", &choice);
@@ -453,7 +486,7 @@ int main(void) {
             }
 
             case 13: {
-                int *evens, *odds;
+                int evens, odds;
 
                 getEvensAndOdds(vector, qtd, &evens, &odds);
 
@@ -462,6 +495,25 @@ int main(void) {
                 pauseExecution();
 
                 break;
+            }
+
+            case 14: {
+                int positionBiggest, positionSmallest;
+                int biggest, smallest;
+
+                getBiggestAndSmallest(vector, &biggest, &smallest, &positionBiggest, &positionSmallest, qtd);
+
+                printf("\n\033[93;42mMENOR --> %d\033[0m\n", smallest);
+                printf("\n\033[93;42mPOSIÇÃO MENOR --> %d\033[0m\n\n", positionSmallest);
+                printf("\n\033[93;43mMAIOR --> %d\033[0m\n", biggest);
+                printf("\n\033[93;43mPOSIÇÃO MAIOR --> %d\033[0m\n", positionBiggest);
+                pauseExecution();
+
+                break;
+            }
+
+            case 15: {
+
             }
 
             case 0: {
@@ -482,6 +534,7 @@ int main(void) {
                 pauseExecution();
 
                 free(nameFile);
+
                 break;
             }
 
@@ -501,6 +554,7 @@ int main(void) {
             }
 
             default:
+
                 break;
         }
     }
@@ -510,6 +564,5 @@ int main(void) {
     if (backupVector != NULL) {
         free(backupVector);
     }
-
     return 0;
 }
