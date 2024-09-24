@@ -558,9 +558,10 @@ int main(void) {
                 break;
         }
     }
-    if (vector != NULL) {}
-    free(vector);
-
+    if (vector != NULL) {
+        free(vector);
+    }
+    
     if (backupVector != NULL) {
         free(backupVector);
     }
